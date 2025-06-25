@@ -51,6 +51,20 @@ This project uses [Google Gemini](https://ai.google) for:
 - Historical insights
 - Handwriting feedback
 
+## 🔑 How to Get a Gemini API Key
+
+To enable AI features, you need your own Gemini API key.
+
+### Steps:
+1. Visit the [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Sign in with your Google account.
+3. Click **"Create API key"**.
+4. Copy the key provided.
+5. Open `AiKanaLearning.html` in a text/code editor.
+6. Find the line:
+   ```js
+   const API_KEY = "your-key-here";
+
 > Replace the placeholder `API_KEY` in the script with your own Gemini API key to enable AI features.
 
 ## ✍️ Handwriting Practice
