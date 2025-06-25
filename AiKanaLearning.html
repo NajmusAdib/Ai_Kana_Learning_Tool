@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightweight Interactive Kana Chart</title>
+    <title>Enhanced Interactive Kana Chart</title>
     <style>
         /* Core Styles for a Light & Fast Experience */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,7 +11,7 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { font-size: 2rem; margin-bottom: 5px; color: #1d2129; }
-        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; /* Reduced margin */ flex-wrap: wrap; }
+        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
         .btn { padding: 10px 20px; border: 1px solid transparent; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; background-color: #e4e6eb; color: #050505; transition: background-color 0.2s ease, border-color 0.2s ease; }
         .btn:hover { background-color: #d8dadf; }
         .btn.active { color: #fff; background-color: #1877f2; border-color: #1877f2; }
@@ -43,67 +43,22 @@
         .voice-status.error { background: #fbe3e4; color: #d12f2f; }
         .voice-status.success { background: #e8f5e9; color: #2e7d32; }
         .hidden { display: none !important; }
-        /* New styles for LLM features */
-        .llm-features {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            margin-top: 10px; /* Reduced margin */
-            margin-bottom: 20px; /* Ensure space below */
-        }
-        .llm-features .info-card {
-            margin-top: 15px;
-        }
-        #loadingIndicator {
-            padding: 10px;
-            font-weight: bold;
-            color: #1877f2;
-        }
-        .practice-char.small {
-            font-size: 4rem; /* Smaller size for example words */
-        }
-        .text-left {
-            text-align: left;
-            padding: 10px;
-            line-height: 1.5;
-        }
-        /* Handwriting canvas styles */
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px; /* Space between the two canvases */
-            margin: 10px auto;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-        }
-        #handwritingCanvas, #referenceCanvas {
-            border: 1px solid #ccc;
-            background-color: #f9f9f9; /* Canvas background color */
-            cursor: crosshair;
-            touch-action: none; /* Prevent scrolling on touch devices while drawing */
-        }
-        #handwritingFeedback {
-            margin-top: 10px;
-            font-weight: bold;
-        }
+        .llm-features { background: #fff; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-top: 10px; margin-bottom: 20px; }
+        .llm-features .info-card { margin-top: 15px; }
+        #loadingIndicator { padding: 10px; font-weight: bold; color: #1877f2; }
+        .practice-char.small { font-size: 4rem; }
+        .text-left { text-align: left; padding: 10px; line-height: 1.5; }
+        .canvas-container { display: flex; justify-content: center; gap: 10px; margin: 10px auto; flex-wrap: wrap; }
+        #handwritingCanvas, #referenceCanvas { border: 1px solid #ccc; background-color: #f9f9f9; cursor: crosshair; touch-action: none; }
+        #handwritingFeedback { margin-top: 10px; font-weight: bold; white-space: pre-wrap; }
 
-        /* Responsive Design */
-        @media (min-width: 768px) {
-            .chart-container { grid-template-columns: 1fr 1fr; }
-        }
+        @media (min-width: 768px) { .chart-container { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 600px) {
             .kana-grid { grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); }
             .practice-char { font-size: 5rem; }
             .practice-char.small { font-size: 3rem; }
-            #handwritingCanvas, #referenceCanvas {
-                width: 120px;
-                height: 120px;
-            }
-            .canvas-container {
-                flex-direction: column;
-                align-items: center;
-            }
+            #handwritingCanvas, #referenceCanvas { width: 120px; height: 120px; }
+            .canvas-container { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
@@ -125,7 +80,6 @@
             <button class="btn" id="generateGeneralTipsBtn">✨ Generate More Tips</button>
         </div>
 
-        <!-- Moved LLM Features section here, directly after controls -->
         <div class="llm-features">
             <h3>Gemini AI Insights</h3>
             <div id="loadingIndicator" class="hidden">Generating...</div>
@@ -158,13 +112,9 @@
                 </div>
                 <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
                     <button class="btn" id="clearCanvasBtn">Clear My Drawing</button>
-                    <button class="btn" id="clearFeedbackBtn">Clear AI Feedback</button>
                     <button class="btn" id="assessDrawingBtn">Assess Drawing (AI)</button>
                 </div>
-                <p id="handwritingFeedback" class="text-left" style="font-size: 0.9em; color: #333; margin-top: 10px;"></p>
-                <p class="text-left" style="font-size: 0.8em; color: #666; margin-top: 5px;">
-                    *AI handwriting recognition is experimental and may not be perfect for detailed calligraphy analysis.*
-                </p>
+                <p id="handwritingFeedback" class="text-left"></p>
             </div>
         </div>
 
@@ -200,57 +150,41 @@
         <div class="pronunciation-tips">
             <h2>General Pronunciation Tips</h2>
             <div class="tips-grid" id="generalTipsGrid">
-                <!-- Initial static tips -->
                 <div class="tip-item static-tip">Vowels: "a" as in "father", "i" as in "machine", "u" as in "flute", "e" as in "get", "o" as in "go".</div>
                 <div class="tip-item static-tip">"tsu" (つ) is pronounced like the "ts" in "cats".</div>
                 <div class="tip-item static-tip">Double consonants (small っ/ッ) create a short pause before the next consonant.</div>
                 <div class="tip-item static-tip">The "r" sound is a light tap, similar to the "tt" in the American English "butter".</div>
-                <div class="tip-item static-tip">Mastering the five basic vowel sounds (a, i, u, e, o) is foundational for all Japanese pronunciation.</div>
-                <!-- New AI-generated tips will be appended below here -->
             </div>
         </div>
     </div>
 
     <script>
         // Data for Kana
-        const hiraganaBasic = {
-            'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の', 'ha': 'は', 'hi': 'ひ', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ', 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'や', 'yu': 'ゆ', 'yo': 'よ', 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん'
-        };
-        const katakanaBasic = {
-            'a': 'ア', 'i': 'イ', 'u': 'ウ', 'e': 'エ', 'o': 'オ', 'ka': 'カ', 'ki': 'キ', 'ku': 'ク', 'ke': 'ケ', 'ko': 'コ', 'sa': 'サ', 'shi': 'シ', 'su': 'ス', 'se': 'セ', 'so': 'ソ', 'ta': 'タ', 'chi': 'チ', 'tsu': 'ツ', 'te': 'テ', 'to': 'ト', 'na': 'ナ', 'ni': 'ニ', 'nu': 'ヌ', 'ne': 'ネ', 'no': 'ノ', 'ha': 'ハ', 'hi': 'ヒ', 'fu': 'フ', 'he': 'ヘ', 'ho': 'ホ', 'ma': 'マ', 'mi': 'ミ', 'mu': 'ム', 'me': 'メ', 'mo': 'モ', 'ya': 'ヤ', 'yu': 'ユ', 'yo': 'ヨ', 'ra': 'ラ', 'ri': 'リ', 'ru': 'ル', 're': 'レ', 'ro': 'ロ', 'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン'
-        };
-        const hiraganaDakuten = {
-            'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ゾ', 'da': 'だ', 'dji': 'ぢ', 'dzu': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ'
-        };
-        const katakanaDakuten = {
-            'ga': 'ガ', 'gi': 'ギ', 'gu': 'グ', 'ge': 'ゲ', 'go': 'ゴ', 'za': 'ザ', 'ji': 'ジ', 'zu': 'ズ', 'ze': 'ゼ', 'zo': 'ゾ', 'da': 'ダ', 'dji': 'ヂ', 'dzu': 'ヅ', 'de': 'デ', 'do': 'ド', 'ba': 'バ', 'bi': 'ビ', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'パ', 'pi': 'ピ', 'pu': 'プ', 'pe': 'ペ', 'po': 'ポ'
-        };
+        const hiraganaBasic = { 'a': 'あ', 'i': 'い', 'u': 'う', 'e': 'え', 'o': 'お', 'ka': 'か', 'ki': 'き', 'ku': 'く', 'ke': 'け', 'ko': 'こ', 'sa': 'さ', 'shi': 'し', 'su': 'す', 'se': 'せ', 'so': 'そ', 'ta': 'た', 'chi': 'ち', 'tsu': 'つ', 'te': 'て', 'to': 'と', 'na': 'な', 'ni': 'に', 'nu': 'ぬ', 'ne': 'ね', 'no': 'の', 'ha': 'は', 'hi': 'ひ', 'fu': 'ふ', 'he': 'へ', 'ho': 'ほ', 'ma': 'ま', 'mi': 'み', 'mu': 'む', 'me': 'め', 'mo': 'も', 'ya': 'や', 'yu': 'ゆ', 'yo': 'よ', 'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ', 'wa': 'わ', 'wo': 'を', 'n': 'ん' };
+        const katakanaBasic = { 'a': 'ア', 'i': 'イ', 'u': 'ウ', 'e': 'エ', 'o': 'オ', 'ka': 'カ', 'ki': 'キ', 'ku': 'ク', 'ke': 'ケ', 'ko': 'コ', 'sa': 'サ', 'shi': 'シ', 'su': 'ス', 'se': 'セ', 'so': 'ソ', 'ta': 'タ', 'chi': 'チ', 'tsu': 'ツ', 'te': 'テ', 'to': 'ト', 'na': 'ナ', 'ni': 'ニ', 'nu': 'ヌ', 'ne': 'ネ', 'no': 'ノ', 'ha': 'ハ', 'hi': 'ヒ', 'fu': 'フ', 'he': 'ヘ', 'ho': 'ホ', 'ma': 'マ', 'mi': 'ミ', 'mu': 'ム', 'me': 'メ', 'mo': 'モ', 'ya': 'ヤ', 'yu': 'ユ', 'yo': 'ヨ', 'ra': 'ラ', 'ri': 'リ', 'ru': 'ル', 're': 'レ', 'ro': 'ロ', 'wa': 'ワ', 'wo': 'ヲ', 'n': 'ン' };
+        const hiraganaDakuten = { 'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご', 'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ', 'da': 'だ', 'dji': 'ぢ', 'dzu': 'づ', 'de': 'で', 'do': 'ど', 'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ' };
+        const katakanaDakuten = { 'ga': 'ガ', 'gi': 'ギ', 'gu': 'グ', 'ge': 'ゲ', 'go': 'ゴ', 'za': 'ザ', 'ji': 'ジ', 'zu': 'ズ', 'ze': 'ゼ', 'zo': 'ゾ', 'da': 'ダ', 'dji': 'ヂ', 'dzu': 'ヅ', 'de': 'デ', 'do': 'ド', 'ba': 'バ', 'bi': 'ビ', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ', 'pa': 'パ', 'pi': 'ピ', 'pu': 'プ', 'pe': 'ペ', 'po': 'ポ' };
         
         // DOM Elements
         const hiraganaGrid = document.getElementById('hiraganaGrid');
         const katakanaGrid = document.getElementById('katakanaGrid');
         const hiraganaDakutenGrid = document.getElementById('hiraganaDakutenGrid');
         const katakanaDakutenGrid = document.getElementById('katakanaDakutenGrid');
-
         const btnBasic = document.getElementById('btnBasic');
         const btnDakuten = document.getElementById('btnDakuten');
         const audioBtn = document.getElementById('audioBtn');
         const basicCharts = document.getElementById('basicCharts');
         const dakutenCharts = document.getElementById('dakutenCharts');
-
         const practiceCharEl = document.getElementById('practiceChar');
         const practiceRomajiEl = document.getElementById('practiceRomaji');
-        const pronunciationTipEl = document.getElementById('pronunciationTip'); // This will now show AI-generated tips
+        const pronunciationTipEl = document.getElementById('pronunciationTip');
         const voiceStatusEl = document.getElementById('voiceStatus');
         const voiceStatusTextEl = document.getElementById('voiceStatusText');
-
-        // New DOM Elements for LLM features
         const generateWordBtn = document.getElementById('generateWordBtn');
         const generateSentenceBtn = document.getElementById('generateSentenceBtn');
         const generateKanaHistoryBtn = document.getElementById('generateKanaHistoryBtn');
-        const showHandwritingCanvasBtn = document.getElementById('showHandwritingCanvasBtn'); // Button for handwriting
-        const generateGeneralTipsBtn = document.getElementById('generateGeneralTipsBtn'); // New button for general tips
-
+        const showHandwritingCanvasBtn = document.getElementById('showHandwritingCanvasBtn');
+        const generateGeneralTipsBtn = document.getElementById('generateGeneralTipsBtn');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const exampleWordArea = document.getElementById('exampleWordArea');
         const exampleWordKanaEl = document.getElementById('exampleWordKana');
@@ -262,958 +196,379 @@
         const sentenceEnglishEl = document.getElementById('sentenceEnglish');
         const kanaHistoryArea = document.getElementById('kanaHistoryArea');
         const kanaHistoryTextEl = document.getElementById('kanaHistoryText');
-
-        const handwritingCanvasArea = document.getElementById('handwritingCanvasArea'); // Handwriting area
-        const handwritingCanvas = document.getElementById('handwritingCanvas'); // User's drawing canvas
-        const referenceCanvas = document.getElementById('referenceCanvas'); // Reference/shadow canvas
-        const clearCanvasBtn = document.getElementById('clearCanvasBtn'); // Clear canvas button
-        const clearFeedbackBtn = document.getElementById('clearFeedbackBtn'); // Clear AI feedback button
-        const assessDrawingBtn = document.getElementById('assessDrawingBtn'); // New assess drawing button
-        const drawingCharDisplay = document.getElementById('drawingCharDisplay'); // Display character to draw
-        const handwritingFeedbackEl = document.getElementById('handwritingFeedback'); // Feedback element
-        const generalTipsGrid = document.getElementById('generalTipsGrid'); // Container for general tips
-
-        const playWordAudioBtn = document.getElementById('playWordAudioBtn'); // Audio button for word
-        const playSentenceAudioBtn = document.getElementById('playSentenceAudioBtn'); // Audio button for sentence
+        const handwritingCanvasArea = document.getElementById('handwritingCanvasArea');
+        const handwritingCanvas = document.getElementById('handwritingCanvas');
+        const referenceCanvas = document.getElementById('referenceCanvas');
+        const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+        const assessDrawingBtn = document.getElementById('assessDrawingBtn');
+        const drawingCharDisplay = document.getElementById('drawingCharDisplay');
+        const handwritingFeedbackEl = document.getElementById('handwritingFeedback');
+        const generalTipsGrid = document.getElementById('generalTipsGrid');
+        const playWordAudioBtn = document.getElementById('playWordAudioBtn');
+        const playSentenceAudioBtn = document.getElementById('playSentenceAudioBtn');
 
         let selectedChar = null;
         let synthesizer = null;
-        let wordTypeIndex = 0;
-        const wordTypes = ["noun", "verb", "adjective", "adverb"];
-        let sentenceTypeIndex = 0;
-        const sentenceTypes = [
-            "a simple declarative sentence",
-            "a question",
-            "a short phrase asking for something",
-            "a polite greeting"
-        ];
-
-        // Canvas drawing variables
-        let ctx = null; // Context for handwritingCanvas
-        let refCtx = null; // Context for referenceCanvas
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
-        const CANVAS_BG_COLOR = '#f9f9f9'; // Must match CSS background-color of canvas
-        const PENCIL_COLOR = '#333';
-        const ERASER_COLOR = CANVAS_BG_COLOR; // Erases by drawing with background color
-        const STROKE_WIDTH = 4; // Default stroke width for both pencil and eraser
-
-        // Store generated tips to avoid immediate duplicates
+        let jpVoice = null;
         let currentGeneralTips = [];
 
-        // Gemini API Key (Canvas will provide this at runtime)
-        const API_KEY = " "; 
+        const wordTypes = [ "a common noun", "a simple verb (dictionary form)", "a common i-adjective", "a common na-adjective", "a word for an animal", "a word for a food item", "a word for a color", "a word related to nature", "a word for a family member", "a word for a place", "an everyday object", "a body part", "a word related to time (e.g., 'today')", "a simple abstract noun (e.g., 'love')" ];
+        const sentenceTypes = [ "a simple declarative sentence", "a simple question asking 'What is this?'", "a short phrase for greeting someone", "a sentence about the weather", "a sentence expressing a simple feeling (e.g., 'I am happy')", "a polite request", "a sentence describing an object's color", "a sentence about eating or drinking something", "a simple sentence using 'this' or 'that'", "a question asking for the time", "a sentence expressing ability (e.g., 'I can...')" ];
+        let wordTypeIndex = 0;
+        let sentenceTypeIndex = 0;
+        
+        let ctx = null, refCtx = null, isDrawing = false, lastX = 0, lastY = 0;
+        const API_KEY = ""; // Provided by Canvas runtime
 
         // --- Grid Generation ---
-        /**
-         * Creates and populates a Kana grid within a given HTML element.
-         * @param {HTMLElement} gridEl - The HTML element to which the grid will be appended.
-         * @param {Object} kanaMap - A map of romaji to Kana characters (e.g., hiraganaBasic).
-         * @param {string[]} headers - An array of header labels for the columns (e.g., ['A', 'I', 'U', 'E', 'O']).
-         * @param {Object[]} rows - An array of row objects, each containing a header and an array of romaji for that row.
-         */
         function createGrid(gridEl, kanaMap, headers, rows) {
-            gridEl.innerHTML = ''; // Clear existing content
-            // Add an empty cell for the top-left corner
+            gridEl.innerHTML = '';
             gridEl.appendChild(createCell('', 'header-cell'));
-            // Add column headers
             headers.forEach(h => gridEl.appendChild(createCell(h, 'header-cell')));
-
-            // Iterate through rows to populate the grid with Kana characters
             rows.forEach(row => {
-                gridEl.appendChild(createCell(row.header, 'header-cell')); // Add row header
+                gridEl.appendChild(createCell(row.header, 'header-cell'));
                 row.romaji.forEach(romaji => {
-                    const char = kanaMap[romaji]; // Get Kana character from the map
-                    if (char) {
-                        // If a character exists, create a clickable Kana cell
-                        gridEl.appendChild(createCell(char, 'kana-cell', romaji));
-                    } else {
-                        // If no character, create an empty cell (for irregular grid layouts)
-                        gridEl.appendChild(createCell('', 'empty-cell'));
-                    }
+                    const char = kanaMap[romaji];
+                    gridEl.appendChild(char ? createCell(char, 'kana-cell', romaji) : createCell('', 'empty-cell'));
                 });
             });
         }
 
-        /**
-         * Creates a single cell for the Kana grid.
-         * @param {string} content - The Kana character or header text for the cell.
-         * @param {string} className - The CSS class for the cell (e.g., 'kana-cell', 'header-cell').
-         * @param {string} [romaji=''] - The romaji pronunciation for 'kana-cell' types.
-         * @returns {HTMLElement} The created div element representing the cell.
-         */
         function createCell(content, className, romaji = '') {
             const cell = document.createElement('div');
-            cell.className = `kana-cell ${className}`; // Apply base and specific classes
+            cell.className = `kana-cell ${className}`;
             if (className === 'kana-cell') {
-                // For Kana character cells, add both character and romaji, and an onclick handler
                 cell.innerHTML = `<div class="kana-char">${content}</div><div class="kana-romaji">${romaji}</div>`;
-                cell.onclick = (event) => selectCharacter(content, romaji, event); // Pass event object
+                cell.onclick = (event) => selectCharacter(content, romaji, event);
             } else {
-                // For header or empty cells, just add text content
                 cell.textContent = content;
             }
             return cell;
         }
 
-        // Headers and rows for basic Kana charts
         const basicHeaders = ['A', 'I', 'U', 'E', 'O'];
-        const basicRows = [
-            { header: '', romaji: ['a', 'i', 'u', 'e', 'o'] },
-            { header: 'K', romaji: ['ka', 'ki', 'ku', 'ke', 'ko'] },
-            { header: 'S', romaji: ['sa', 'shi', 'su', 'se', 'so'] },
-            { header: 'T', romaji: ['ta', 'chi', 'tsu', 'te', 'to'] },
-            { header: 'N', romaji: ['na', 'ni', 'nu', 'ne', 'no'] },
-            { header: 'H', romaji: ['ha', 'hi', 'fu', 'he', 'ho'] },
-            { header: 'M', romaji: ['ma', 'mi', 'mu', 'me', 'mo'] },
-            { header: 'Y', romaji: ['ya', '', 'yu', '', 'yo'] }, // Empty strings for missing characters
-            { header: 'R', romaji: ['ra', 'ri', 'ru', 're', 'ro'] },
-            { header: 'W', romaji: ['wa', '', '', '', 'wo'] },
-            { header: 'N', romaji: ['n', '', '', '', ''] }
-        ];
-
-        // Headers and rows for Dakuten & Handakuten Kana charts
-        const dakutenRows = [
-            { header: 'G', romaji: ['ga', 'gi', 'gu', 'ge', 'go'] },
-            { header: 'Z', romaji: ['za', 'ji', 'zu', 'ze', 'zo'] },
-            { header: 'D', romaji: ['da', 'dji', 'dzu', 'de', 'do'] },
-            { header: 'B', romaji: ['ba', 'bi', 'bu', 'be', 'bo'] },
-            { header: 'P', romaji: ['pa', 'pi', 'pu', 'pe', 'po'] }
-        ];
+        const basicRows = [ { header: '', romaji: ['a', 'i', 'u', 'e', 'o'] }, { header: 'K', romaji: ['ka', 'ki', 'ku', 'ke', 'ko'] }, { header: 'S', romaji: ['sa', 'shi', 'su', 'se', 'so'] }, { header: 'T', romaji: ['ta', 'chi', 'tsu', 'te', 'to'] }, { header: 'N', romaji: ['na', 'ni', 'nu', 'ne', 'no'] }, { header: 'H', romaji: ['ha', 'hi', 'fu', 'he', 'ho'] }, { header: 'M', romaji: ['ma', 'mi', 'mu', 'me', 'mo'] }, { header: 'Y', romaji: ['ya', '', 'yu', '', 'yo'] }, { header: 'R', romaji: ['ra', 'ri', 'ru', 're', 'ro'] }, { header: 'W', romaji: ['wa', '', '', '', 'wo'] }, { header: 'N', romaji: ['n', '', '', '', ''] } ];
+        const dakutenRows = [ { header: 'G', romaji: ['ga', 'gi', 'gu', 'ge', 'go'] }, { header: 'Z', romaji: ['za', 'ji', 'zu', 'ze', 'zo'] }, { header: 'D', romaji: ['da', 'dji', 'dzu', 'de', 'do'] }, { header: 'B', romaji: ['ba', 'bi', 'bu', 'be', 'bo'] }, { header: 'P', romaji: ['pa', 'pi', 'pu', 'pe', 'po'] } ];
 
         // --- UI Interaction ---
-        /**
-         * Handles the selection of a Kana character from the grid.
-         * Updates the practice area and plays the audio.
-         * @param {string} char - The selected Kana character.
-         * @param {string} romaji - The romaji pronunciation of the selected character.
-         * @param {Event} event - The click event object.
-         */
         async function selectCharacter(char, romaji, event) {
-            // Remove 'selected' class from previously selected cells
             document.querySelectorAll('.kana-cell.selected').forEach(c => c.classList.remove('selected'));
-            // Add 'selected' class to the clicked cell
             event.currentTarget.classList.add('selected');
-
-            selectedChar = char; // Store the selected character globally
-            practiceCharEl.textContent = char; // Update practice area character
-            practiceRomajiEl.textContent = romaji; // Update practice area romaji
-
-            // Play audio for the selected character immediately
-            playAudio(selectedChar); 
-
-            // Hide all LLM generated content and drawing canvas when a new character is selected
-            exampleWordArea.classList.add('hidden');
-            sentenceArea.classList.add('hidden');
-            kanaHistoryArea.classList.add('hidden');
-            handwritingCanvasArea.classList.add('hidden'); // Hide drawing canvas area
-            handwritingFeedbackEl.textContent = ''; // Clear feedback
-
-            // Generate AI pronunciation tip for the selected character (now happens after audio)
+            selectedChar = char;
+            practiceCharEl.textContent = char;
+            practiceRomajiEl.textContent = romaji;
+            playAudio(selectedChar);
+            [exampleWordArea, sentenceArea, kanaHistoryArea, handwritingCanvasArea].forEach(el => el.classList.add('hidden'));
+            handwritingFeedbackEl.textContent = '';
             await generatePronunciationTip(char, romaji);
         }
 
-        /**
-         * Switches between the basic Kana view and the Dakuten/Handakuten view.
-         * @param {boolean} isBasic - True to show basic charts, false to show dakuten charts.
-         */
+        function clearSelection() {
+            document.querySelectorAll('.kana-cell.selected').forEach(c => c.classList.remove('selected'));
+            selectedChar = null;
+            practiceCharEl.textContent = '🎯';
+            practiceRomajiEl.textContent = 'Select a character';
+            pronunciationTipEl.textContent = 'Select a character!';
+        }
+
         function switchView(isBasic) {
             btnBasic.classList.toggle('active', isBasic);
             btnDakuten.classList.toggle('active', !isBasic);
             basicCharts.classList.toggle('hidden', !isBasic);
             dakutenCharts.classList.toggle('hidden', isBasic);
-            clearSelection(); // Clear selection when switching views
+            clearSelection();
         }
-
-        /**
-         * Clears the current character selection and resets the practice area.
-         */
-        function clearSelection() {
-            document.querySelectorAll('.kana-cell.selected').forEach(c => c.classList.remove('selected'));
-            selectedChar = null;
-            practiceCharEl.textContent = '🎯'; // Reset practice character
-            practiceRomajiEl.textContent = 'Select a character'; // Reset romaji
-            pronunciationTipEl.textContent = 'Select a character!'; // Reset tip
-            
-            // Also clear and hide all LLM generated content and drawing canvas
-            exampleWordArea.classList.add('hidden');
-            sentenceArea.classList.add('hidden');
-            sentenceKanaEl.textContent = '';
-            sentenceRomajiEl.textContent = '';
-            sentenceEnglishEl.textContent = '';
-            kanaHistoryArea.classList.add('hidden');
-            kanaHistoryTextEl.textContent = '';
-            handwritingCanvasArea.classList.add('hidden'); // Hide drawing canvas area
-            if (ctx) {
-                ctx.clearRect(0, 0, handwritingCanvas.width, handwritingCanvas.height); // Clear user canvas
-            }
-            if (refCtx) { // Also clear the reference canvas for a clean slate when switching away
-                refCtx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
-            }
-            drawingCharDisplay.textContent = ''; // Clear drawing character display
-            handwritingFeedbackEl.textContent = ''; // Clear feedback
-        }
-
-        // Attach event listeners to view switching buttons
-        btnBasic.onclick = () => switchView(true);
-        btnDakuten.onclick = () => switchView(false);
 
         // --- Audio Synthesis ---
-        let jpVoice = null; // Store the Japanese voice once found
-
-        /**
-         * Checks browser support for Speech Synthesis and sets up the voice.
-         * Updates the voice status display and enables/disables the audio button.
-         */
         function checkVoiceSupport() {
-            console.log("Checking voice support...");
             if ('speechSynthesis' in window) {
-                synthesizer = window.speechSynthesis; // Get the SpeechSynthesis API instance
-
-                const findAndSetVoice = () => {
-                    console.log("Voices changed, attempting to set voice.");
-                    // Find a Japanese voice, using startsWith('ja') for broader compatibility
+                synthesizer = window.speechSynthesis;
+                const setVoice = () => {
                     jpVoice = synthesizer.getVoices().find(v => v.lang.startsWith('ja'));
                     if (jpVoice) {
-                        voiceStatusEl.className = 'voice-status success'; // Set status to success
+                        voiceStatusEl.className = 'voice-status success';
                         voiceStatusTextEl.textContent = 'Japanese voice ready!';
-                        audioBtn.disabled = false; // Enable main audio button
-                        if (playWordAudioBtn) playWordAudioBtn.disabled = false;
-                        if (playSentenceAudioBtn) playSentenceAudioBtn.disabled = false;
-                        console.log("Japanese voice found:", jpVoice.name);
+                        [audioBtn, playWordAudioBtn, playSentenceAudioBtn].forEach(b => b && (b.disabled = false));
                     } else {
-                        voiceStatusEl.className = 'voice-status error'; // Set status to error
+                        voiceStatusEl.className = 'voice-status error';
                         voiceStatusTextEl.textContent = 'Japanese voice not found in your browser.';
-                        audioBtn.disabled = true; // Disable main audio button
-                        if (playWordAudioBtn) playWordAudioBtn.disabled = true;
-                        if (playSentenceAudioBtn) playSentenceAudioBtn.disabled = true;
-                        console.warn("Japanese voice not found. Available voices:", synthesizer.getVoices().map(v => v.lang + ' ' + v.name));
+                        [audioBtn, playWordAudioBtn, playSentenceAudioBtn].forEach(b => b && (b.disabled = true));
                     }
-                    voiceStatusEl.classList.remove('hidden'); // Show the voice status element
+                    voiceStatusEl.classList.remove('hidden');
                 };
-                
-                // If voices are already loaded, set the voice immediately, otherwise wait for 'onvoiceschanged' event
-                if (synthesizer.getVoices().length) {
-                    findAndSetVoice();
-                } else {
-                    // This event ensures the voices are loaded before trying to find them
-                    synthesizer.onvoiceschanged = findAndSetVoice;
-                    console.log("Waiting for voices to load...");
-                }
+                synthesizer.getVoices().length ? setVoice() : (synthesizer.onvoiceschanged = setVoice);
             } else {
-                // If speech synthesis is not supported
-                voiceStatusEl.className = 'voice-status error'; // Set status to error
-                voiceStatusTextEl.textContent = 'Speech synthesis not supported by this browser.';
-                audioBtn.disabled = true; // Disable main audio button
-                if (playWordAudioBtn) playWordAudioBtn.disabled = true;
-                if (playSentenceAudioBtn) playSentenceAudioBtn.disabled = true;
-                voiceStatusEl.classList.remove('hidden'); // Show the voice status element
-                console.error("SpeechSynthesis API not supported by this browser.");
+                voiceStatusEl.className = 'voice-status error';
+                voiceStatusTextEl.textContent = 'Speech synthesis not supported.';
+                [audioBtn, playWordAudioBtn, playSentenceAudioBtn].forEach(b => b && (b.disabled = true));
+                voiceStatusEl.classList.remove('hidden');
             }
         }
 
-        /**
-         * Plays the audio pronunciation of the given text.
-         * @param {string} textToSpeak - The text string to be spoken.
-         */
         function playAudio(textToSpeak) {
-            console.log(`Attempting to play audio for: "${textToSpeak}"`);
-            if (!textToSpeak || !synthesizer || audioBtn.disabled || !jpVoice) {
-                console.warn("Audio playback aborted: missing text, synthesizer, Japanese voice, or button disabled.");
-                return;
-            }
-
-            // Immediately cancel any ongoing speech to prevent queuing and ensure responsiveness
-            if (synthesizer.speaking) {
-                synthesizer.cancel();
-                console.log("Cancelled previous speech.");
-            }
-            
+            if (!textToSpeak || !synthesizer || !jpVoice) return;
+            if (synthesizer.speaking) synthesizer.cancel();
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'ja-JP';
-            utterance.voice = jpVoice; // Use the stored voice
+            utterance.voice = jpVoice;
             synthesizer.speak(utterance);
-            console.log(`Started new speech for: "${textToSpeak}"`);
         }
-        audioBtn.onclick = () => playAudio(selectedChar); // Attach playAudio to the main audio button click event
 
         // --- LLM Powered Features ---
-
-        /**
-         * Shows the loading indicator and hides the specified element.
-         * @param {HTMLElement} [elementToHide] - The element to hide while loading.
-         */
         function showLoading(elementToHide) {
             loadingIndicator.classList.remove('hidden');
-            if (elementToHide) {
-                elementToHide.classList.add('hidden'); // Hide the target area while loading
-            }
+            if (elementToHide) elementToHide.classList.add('hidden');
         }
 
-        /**
-         * Hides the loading indicator and shows the specified element.
-         * @param {HTMLElement} [elementToShow] - The element to show after loading.
-         */
         function hideLoading(elementToShow) {
             loadingIndicator.classList.add('hidden');
-            if (elementToShow) {
-                elementToShow.classList.remove('hidden'); // Show the target area after loading
-            }
+            if (elementToShow) elementToShow.classList.remove('hidden');
         }
 
-        /**
-         * Displays a custom message box to the user.
-         * @param {string} message - The message to display.
-         * @param {'info'|'error'|'success'} [type='info'] - The type of message, influences styling.
-         */
         function showMessageBox(message, type = 'info') {
-            let messageBox = document.getElementById('customMessageBox');
-            if (!messageBox) {
-                // Create message box element if it doesn't exist
-                messageBox = document.createElement('div');
-                messageBox.id = 'customMessageBox';
-                messageBox.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    padding: 20px;
-                    background-color: white;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                    z-index: 1000;
-                    text-align: center;
-                    max-width: 300px;
-                    color: #333;
-                `;
-                document.body.appendChild(messageBox);
-            }
-
-            // Set message box content
-            messageBox.innerHTML = `
-                <p>${message}</p>
-                <button id="closeMessageBox" style="
-                    margin-top: 15px;
-                    padding: 8px 15px;
-                    border: none;
-                    border-radius: 5px;
-                    background-color: #1877f2;
-                    color: white;
-                    cursor: pointer;
-                ">OK</button>
-            `;
-            messageBox.style.display = 'block'; // Make it visible
-
-            // Close button functionality
-            document.getElementById('closeMessageBox').onclick = () => {
-                messageBox.style.display = 'none';
+            alert(message);
+        }
+        
+        async function callGeminiAPI(prompt, schema) {
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json", responseSchema: schema }
             };
-
-            // Optional: styling based on message type
-            if (type === 'error') {
-                messageBox.style.borderColor = '#d12f2f';
-                messageBox.style.color = '#d12f2f';
-            } else if (type === 'success') {
-                messageBox.style.borderColor = '#2e7d32';
-                messageBox.style.color = '#2e7d32';
-            } else { // info
-                messageBox.style.borderColor = '#1877f2';
-                messageBox.style.color = '#333';
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+            const result = await response.json();
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                return JSON.parse(result.candidates[0].content.parts[0].text);
             }
+            throw new Error("Invalid API response structure");
         }
 
-        /**
-         * Generates an AI-powered pronunciation tip for the selected Kana character.
-         * @param {string} char - The Kana character.
-         * @param {string} romaji - The Romaji of the character.
-         */
         async function generatePronunciationTip(char, romaji) {
-            pronunciationTipEl.textContent = 'Generating tip...'; // Show loading for tip
-            const prompt = `Provide a concise, 1-sentence pronunciation tip for the Japanese character "${char}" (Romaji: "${romaji}"). Focus on common pitfalls or English sound analogies. If no specific tip, state that it's straightforward. Format as JSON: {"tip": "Your tip here."}`;
+            pronunciationTipEl.textContent = 'Generating tip...';
+            const prompt = `As a Japanese language teacher, provide a highly accurate and concise pronunciation tip for the kana "${char}" (romaji: "${romaji}"). The tip must be easy for an English speaker to understand. Focus on the precise mouth shape, tongue position, or a very close phonetic analogy in English. Avoid overly simplistic or potentially misleading comparisons. Format as a valid JSON object: {"tip": "Your detailed tip here."}`;
             try {
-                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: { type: "OBJECT", properties: { "tip": { "type": "STRING" } } }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0]) {
-                    const parsed = JSON.parse(result.candidates[0].content.parts[0].text);
-                    pronunciationTipEl.textContent = parsed.tip || 'Could not generate tip.';
-                } else {
-                    console.error("AI pronunciation tip response unexpected:", result);
-                    pronunciationTipEl.textContent = 'Tip unavailable.';
-                }
+                const schema = { type: "OBJECT", properties: { "tip": { "type": "STRING" } } };
+                const parsed = await callGeminiAPI(prompt, schema);
+                pronunciationTipEl.textContent = parsed.tip || 'Could not generate tip.';
             } catch (error) {
                 console.error("Error generating pronunciation tip:", error);
                 pronunciationTipEl.textContent = 'Error fetching tip.';
             }
         }
-
-
-        /**
-         * Generates a simple example Japanese word using the selected Kana character
-         * and displays it in the example word area.
-         */
+        
         async function generateExampleWord() {
-            if (!selectedChar || !practiceRomajiEl.textContent) {
-                showMessageBox("Please select a Kana character first to get an example word!", "info");
-                return;
-            }
-
-            showLoading(exampleWordArea); // Show loading, hide example area
-            // Clear previous content
-            exampleWordKanaEl.textContent = '';
-            exampleWordRomajiEl.textContent = '';
-            exampleWordEnglishEl.textContent = '';
-            // Hide other LLM areas
-            sentenceArea.classList.add('hidden');
-            kanaHistoryArea.classList.add('hidden');
-            handwritingCanvasArea.classList.add('hidden');
-
-            const currentWordType = wordTypes[wordTypeIndex];
-            wordTypeIndex = (wordTypeIndex + 1) % wordTypes.length; // Cycle through types
-
-            // Construct the prompt for the LLM, requesting a specific type of word
-            // IMPORTANT: Explicitly asking for the character to be included
-            const prompt = `Give me a single, very simple Japanese word (a common ${currentWordType}) that uses and clearly contains the character "${selectedChar}" (Romaji: "${practiceRomajiEl.textContent}"). The word should be easy for a beginner. Provide the Japanese word, its Romaji, and its English meaning. Format your response as a JSON object with keys "japanese", "romaji", and "english". For example: {"japanese": "ねこ", "romaji": "neko", "english": "cat"}`;
-
-            try {
-                const chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "japanese": { "type": "STRING" },
-                                "romaji": { "type": "STRING" },
-                                "english": { "type": "STRING" }
-                            },
-                            "propertyOrdering": ["japanese", "romaji", "english"] // Maintain order
-                        }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                // Check for valid response structure
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const json = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(json);
-
-                    // Update UI with generated word
-                    exampleWordKanaEl.textContent = parsedJson.japanese || 'N/A';
-                    exampleWordRomajiEl.textContent = parsedJson.romaji ? `Romaji: ${parsedJson.romaji}` : 'Romaji: N/A';
-                    exampleWordEnglishEl.textContent = parsedJson.english ? `English: ${parsedJson.english}` : 'English: N/A';
-
-                    // Play audio for the generated word
-                    if (playWordAudioBtn) {
+            if (!selectedChar) return showMessageBox("Please select a Kana character first!", "info");
+            showLoading(exampleWordArea);
+            [sentenceArea, kanaHistoryArea, handwritingCanvasArea].forEach(el => el.classList.add('hidden'));
+            let success = false; let attempts = 0; const MAX_ATTEMPTS = 3;
+            while (!success && attempts < MAX_ATTEMPTS) {
+                attempts++;
+                try {
+                    wordTypeIndex = (wordTypeIndex + 1) % wordTypes.length;
+                    const prompt = `Give me a single, simple Japanese word. It must be a beginner-level ${wordTypes[wordTypeIndex]}. IMPORTANT RULE: The Japanese word MUST contain the character "${selectedChar}". Provide the Japanese word (in kana), its Romaji, and its English meaning. Format your response as a valid JSON object with keys "japanese", "romaji", and "english".`;
+                    const schema = { type: "OBJECT", properties: { "japanese": { "type": "STRING" }, "romaji": { "type": "STRING" }, "english": { "type": "STRING" } }, required: ["japanese", "romaji", "english"] };
+                    const parsedJson = await callGeminiAPI(prompt, schema);
+                    if (parsedJson.japanese && parsedJson.japanese.includes(selectedChar)) {
+                        exampleWordKanaEl.textContent = parsedJson.japanese;
+                        exampleWordRomajiEl.textContent = `Romaji: ${parsedJson.romaji}`;
+                        exampleWordEnglishEl.textContent = `English: ${parsedJson.english}`;
                         playWordAudioBtn.onclick = () => playAudio(parsedJson.japanese);
-                    }
-
-                } else {
-                    console.error("Gemini API response structure unexpected:", result);
-                    showMessageBox("Could not generate example word. Please try again.", "error");
-                }
-            } catch (error) {
-                console.error("Error generating example word:", error);
-                showMessageBox("Error generating example word. Please check your connection or try again later.", "error");
-            } finally {
-                hideLoading(exampleWordArea); // Hide loading, show example area
+                        success = true;
+                    } else { console.warn(`Attempt ${attempts}: Word "${parsedJson.japanese}" does not contain "${selectedChar}". Retrying...`); }
+                } catch (error) { console.error(`Error generating example word (Attempt ${attempts}):`, error); }
             }
+            hideLoading(exampleWordArea);
+            if (!success) { exampleWordKanaEl.textContent = 'Failed'; exampleWordRomajiEl.textContent = 'Could not generate a valid word.'; exampleWordEnglishEl.textContent = 'Please try again.'; }
         }
 
-        /**
-         * Generates an example Japanese sentence using the selected Kana character.
-         */
         async function generateSentence() {
-            if (!selectedChar || !practiceRomajiEl.textContent) {
-                showMessageBox("Please select a Kana character first to get an example sentence!", "info");
-                return;
+            if (!selectedChar) return showMessageBox("Please select a Kana character first!", "info");
+            showLoading(sentenceArea);
+            [exampleWordArea, kanaHistoryArea, handwritingCanvasArea].forEach(el => el.classList.add('hidden'));
+            let success = false; let attempts = 0; const MAX_ATTEMPTS = 3;
+            while (!success && attempts < MAX_ATTEMPTS) {
+                attempts++;
+                try {
+                    sentenceTypeIndex = (sentenceTypeIndex + 1) % sentenceTypes.length;
+                    const prompt = `Generate a very simple, short Japanese sentence for a beginner. It should be ${sentenceTypes[sentenceTypeIndex]}. IMPORTANT RULE: The Japanese sentence MUST contain the character "${selectedChar}". Provide the full sentence in Japanese (kana/mixed), its Romaji, and its English meaning. Format as a valid JSON object with keys "japanese", "romaji", and "english".`;
+                    const schema = { type: "OBJECT", properties: { "japanese": { "type": "STRING" }, "romaji": { "type": "STRING" }, "english": { "type": "STRING" } }, required: ["japanese", "romaji", "english"] };
+                    const parsedJson = await callGeminiAPI(prompt, schema);
+                    if (parsedJson.japanese && parsedJson.japanese.includes(selectedChar)) {
+                        sentenceKanaEl.textContent = parsedJson.japanese;
+                        sentenceRomajiEl.textContent = `Romaji: ${parsedJson.romaji}`;
+                        sentenceEnglishEl.textContent = `English: ${parsedJson.english}`;
+                        playSentenceAudioBtn.onclick = () => playAudio(parsedJson.japanese);
+                        success = true;
+                    } else { console.warn(`Attempt ${attempts}: Sentence "${parsedJson.japanese}" does not contain "${selectedChar}". Retrying...`); }
+                } catch (error) { console.error(`Error generating example sentence (Attempt ${attempts}):`, error); }
             }
-
-            showLoading(sentenceArea); // Show loading, hide sentence area
-            sentenceKanaEl.textContent = '';
-            sentenceRomajiEl.textContent = '';
-            sentenceEnglishEl.textContent = '';
-            // Hide other LLM areas
-            exampleWordArea.classList.add('hidden');
-            kanaHistoryArea.classList.add('hidden');
-            handwritingCanvasArea.classList.add('hidden');
-
-            const currentSentenceType = sentenceTypes[sentenceTypeIndex];
-            sentenceTypeIndex = (sentenceTypeIndex + 1) % sentenceTypes.length; // Cycle through types
-
-            // IMPORTANT: Explicitly asking for the character to be included
-            const prompt = `Generate a very simple, short Japanese sentence that uses and clearly contains the character "${selectedChar}" (Romaji: "${practiceRomajiEl.textContent}"). The sentence should be ${currentSentenceType}. Provide the Japanese sentence, its Romaji, and its English meaning. Format your response as a JSON object with keys "japanese", "romaji", and "english". For example: {"japanese": "これはペンです", "romaji": "kore wa pen desu", "english": "This is a pen."}`;
-
-            try {
-                const chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "japanese": { "type": "STRING" },
-                                "romaji": { "type": "STRING" },
-                                "english": { "type": "STRING" }
-                            },
-                            "propertyOrdering": ["japanese", "romaji", "english"]
-                        }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const json = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(json);
-                    sentenceKanaEl.textContent = parsedJson.japanese || 'N/A';
-                    sentenceRomajiEl.textContent = parsedJson.romaji ? `Romaji: ${parsedJson.romaji}` : 'Romaji: N/A';
-                    sentenceEnglishEl.textContent = parsedJson.english ? `English: ${parsedJson.english}` : 'English: N/A';
-
-                    // Play audio for the generated sentence
-                    if (playSentenceAudioBtn) {
-                        playSentenceAudioBtn.onclick = () => playAudio(parsedJson.japanese); // Log the text being spoken
-                    }
-
-                } else {
-                    console.error("Gemini API response structure unexpected:", result);
-                    showMessageBox("Could not generate example sentence. Please try again.", "error");
-                }
-            } catch (error) {
-                console.error("Error generating example sentence:", error);
-                showMessageBox("Error generating example sentence. Please check your connection or try again later.", "error");
-            } finally {
-                hideLoading(sentenceArea); // Hide loading, show sentence area
-            }
+            hideLoading(sentenceArea);
+            if (!success) { sentenceKanaEl.textContent = 'Failed'; sentenceRomajiEl.textContent = 'Could not generate a valid sentence.'; sentenceEnglishEl.textContent = 'Please try again.'; }
         }
 
-        /**
-         * Generates a brief history/etymology for the selected Kana character.
-         */
         async function generateKanaHistory() {
-            if (!selectedChar || !practiceRomajiEl.textContent) {
-                showMessageBox("Please select a Kana character first to get its history!", "info");
-                return;
-            }
-
-            showLoading(kanaHistoryArea); // Show loading, hide history area
-            kanaHistoryTextEl.textContent = ''; // Clear previous content
-            // Hide other LLM areas
-            exampleWordArea.classList.add('hidden');
-            sentenceArea.classList.add('hidden');
-            handwritingCanvasArea.classList.add('hidden');
-
-            const prompt = `Provide a very brief (1-2 sentences) interesting fact or etymology about the Japanese character "${selectedChar}" (Romaji: "${practiceRomajiEl.textContent}"). Focus on its origin from Kanji or a notable historical aspect. Format the response as a JSON object with a 'fact' key. Example for "あ": {"fact": "Hiragana 'あ' originated from the simplified form of the Kanji character '安' (an), meaning 'peace' or 'cheap'."}`;
-
+            if (!selectedChar) return showMessageBox("Please select a character first!", "info");
+            showLoading(kanaHistoryArea);
+            [exampleWordArea, sentenceArea, handwritingCanvasArea].forEach(el => el.classList.add('hidden'));
+            const prompt = `Provide the verified etymological origin of the Japanese kana "${selectedChar}". State the specific source Kanji character (man'yōgana) it derives from and the meaning of that Kanji. The information must be historically accurate. Be concise (1-2 sentences). Format as a valid JSON object with a "fact" key. Example: {"fact": "Hiragana 'あ' originates from the cursive form of the Kanji character '安' (an), which means 'peace'."}`;
             try {
-                const chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "fact": { "type": "STRING" }
-                            }
-                        }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const json = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(json);
-                    kanaHistoryTextEl.textContent = parsedJson.fact || 'Could not retrieve history/etymology.';
-                } else {
-                    console.error("Gemini API response structure unexpected:", result);
-                    showMessageBox("Could not generate history/etymology. Please try again.", "error");
-                }
+                const schema = { type: "OBJECT", properties: { "fact": { "type": "STRING" } }, required: ["fact"] };
+                const parsedJson = await callGeminiAPI(prompt, schema);
+                kanaHistoryTextEl.textContent = parsedJson.fact;
             } catch (error) {
-                console.error("Error generating history/etymology:", error);
-                showMessageBox("Error generating history/etymology. Please check your connection or try again later.", "error");
+                console.error("Error generating history:", error);
+                kanaHistoryTextEl.textContent = 'Could not retrieve history. Please try again.';
             } finally {
-                hideLoading(kanaHistoryArea); // Hide loading, show history area
+                hideLoading(kanaHistoryArea);
             }
         }
-
-        /**
-         * Initializes and displays the handwriting practice canvases.
-         */
-        function showHandwritingCanvas() {
-            if (!selectedChar) {
-                showMessageBox("Please select a Kana character first to practice handwriting!", "info");
-                return;
-            }
-
-            // Hide other LLM areas
-            exampleWordArea.classList.add('hidden');
-            sentenceArea.classList.add('hidden');
-            kanaHistoryArea.classList.add('hidden');
-
-            // Show handwriting canvas area
-            handwritingCanvasArea.classList.remove('hidden');
-            drawingCharDisplay.textContent = selectedChar;
-            handwritingFeedbackEl.textContent = ''; // Clear previous feedback
-
-            // Initialize canvas contexts if not already done
-            if (!ctx) {
-                ctx = handwritingCanvas.getContext('2d');
-                ctx.lineWidth = STROKE_WIDTH;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round'; // Ensure smooth line joins
-                ctx.strokeStyle = PENCIL_COLOR; // Default to pencil color
-                ctx.globalCompositeOperation = 'source-over'; // Default to drawing mode
-            }
-            if (!refCtx) {
-                refCtx = referenceCanvas.getContext('2d');
-            }
-            
-            ctx.clearRect(0, 0, handwritingCanvas.width, handwritingCanvas.height); // Clear user's drawing canvas
-            refCtx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height); // Clear reference canvas initially
-
-            // Draw the shadow immediately and permanently when showing the canvas area
-            if (selectedChar) {
-                drawCharacterShadow(selectedChar);
-            }
-
-            // Set up drawing event listeners for the handwriting canvas only
-            handwritingCanvas.addEventListener('mousedown', startDrawing);
-            handwritingCanvas.addEventListener('mouseup', stopDrawing);
-            handwritingCanvas.addEventListener('mouseout', stopDrawing); // Stop drawing if mouse leaves canvas
-            handwritingCanvas.addEventListener('mousemove', draw);
-            handwritingCanvas.addEventListener('contextmenu', (e) => e.preventDefault()); // Prevent right-click context menu
-
-            // Touch events for mobile on handwriting canvas only
-            handwritingCanvas.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Prevent scrolling
-                // For touch, we assume pencil. Eraser typically needs a separate UI button on touch.
-                ctx.strokeStyle = PENCIL_COLOR;
-                ctx.globalCompositeOperation = 'source-over';
-                startDrawing(e.touches[0]);
-            });
-            handwritingCanvas.addEventListener('touchend', stopDrawing);
-            handwritingCanvas.addEventListener('touchcancel', stopDrawing);
-            handwritingCanvas.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Prevent scrolling
-                draw(e.touches[0]);
-            });
-        }
-
-        /**
-         * Starts the drawing process on the main handwriting canvas.
-         * Sets tool (pencil/eraser) based on mouse button.
-         * @param {Event} event - Mouse or touch event.
-         */
-        function startDrawing(event) {
-            isDrawing = true;
-            const rect = handwritingCanvas.getBoundingClientRect();
-            // Check if it's a mouse event and which button is pressed
-            if (event.button === 0) { // Left-click for pencil
-                ctx.strokeStyle = PENCIL_COLOR;
-                ctx.globalCompositeOperation = 'source-over';
-            } else if (event.button === 2) { // Right-click for eraser
-                ctx.strokeStyle = ERASER_COLOR;
-                ctx.globalCompositeOperation = 'destination-out'; // This operation erases pixels
-            }
-            [lastX, lastY] = [event.clientX - rect.left, event.clientY - rect.top];
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-        }
-
-        /**
-         * Stops the drawing process on the main handwriting canvas.
-         * Resets globalCompositeOperation to default.
-         */
-        function stopDrawing() {
-            isDrawing = false;
-            // Always reset to 'source-over' after drawing/erasing to ensure default drawing behavior
-            ctx.globalCompositeOperation = 'source-over'; 
-        }
-
-        /**
-         * Draws on the main handwriting canvas based on mouse/touch movement.
-         * @param {Event} event - Mouse or touch event.
-         */
-        function draw(event) {
-            if (!isDrawing) return;
-            const rect = handwritingCanvas.getBoundingClientRect();
-            const currentX = event.clientX - rect.left;
-            const currentY = event.clientY - rect.top;
-            ctx.lineTo(currentX, currentY);
-            ctx.stroke();
-            [lastX, lastY] = [currentX, currentY];
-        }
-
-        /**
-         * Clears the user's handwriting canvas.
-         */
-        function clearHandwritingCanvas() {
-            if (ctx) {
-                ctx.clearRect(0, 0, handwritingCanvas.width, handwritingCanvas.height);
-            }
-            // Do NOT clear refCtx here. The shadow should persist.
-        }
-
-        /**
-         * Clears only the AI assessment feedback text.
-         */
-        function clearAssessmentFeedback() {
-            handwritingFeedbackEl.textContent = '';
-        }
-
-        /**
-         * Draws a faded shadow of the correct character on the reference canvas.
-         * This shadow now stays permanently.
-         * @param {string} char - The character to draw as a shadow.
-         */
-        function drawCharacterShadow(char) {
-            if (!refCtx) return;
-
-            refCtx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height); // Clear any previous shadow
-
-            refCtx.save();
-            refCtx.globalAlpha = 0.2; // Faded
-            refCtx.fillStyle = '#1877f2'; // Blue shadow
-            refCtx.font = '100px sans-serif'; // Large font for clear character
-            refCtx.textAlign = 'center';
-            refCtx.textBaseline = 'middle';
-            refCtx.fillText(char, referenceCanvas.width / 2, referenceCanvas.height / 2 + 10);
-            refCtx.restore();
-        }
-
-
-        /**
-         * Converts canvas content to a Base64 image and sends it to Gemini for assessment.
-         */
-        async function assessDrawing() {
-            if (!selectedChar) {
-                showMessageBox("Please select a Kana character first to assess your drawing!", "info");
-                return;
-            }
-
-            handwritingFeedbackEl.textContent = 'Assessing drawing...';
-            showLoading(null); // Show global loading indicator
-
-            // Get canvas content as base64 image data ONLY from the handwritingCanvas
-            const imageDataUrl = handwritingCanvas.toDataURL('image/png');
-            const base64ImageData = imageDataUrl.split(',')[1]; // Remove "data:image/png;base64," prefix
-
-            // Previous prompt before the changes for "correct aspects" and Imagen API for stroke order
-            const prompt = `Analyze the Japanese character drawn in the image. The target character is "${selectedChar}". Provide specific, actionable feedback on how to improve the handwriting. Focus on 2-3 key aspects such as stroke formation (e.g., straightness, curves, connections), proportions (e.g., balance of parts, size), and overall balance of the character. Also, give a percentage score from 0 to 100 indicating how well the drawing matches the target character, where 100% is a perfect match. Format your response as a JSON object with an 'assessment' key for the detailed feedback and a 'percentage' key for the score. Example: {"assessment": "Your vertical strokes are good, but try to make the horizontal lines slightly more curved for better flow. The overall proportion is fair.", "percentage": 75}`;
-
-            try {
-                const chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = {
-                    contents: [
-                        {
-                            role: "user",
-                            parts: [
-                                { text: prompt },
-                                {
-                                    inlineData: {
-                                        mimeType: "image/png",
-                                        data: base64ImageData
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "assessment": { "type": "STRING" },
-                                "percentage": { "type": "NUMBER" } // Expecting a number for percentage
-                            },
-                            "propertyOrdering": ["assessment", "percentage"]
-                        }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const json = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(json);
-                    
-                    const assessmentText = parsedJson.assessment || 'Could not provide assessment.';
-                    const percentage = typeof parsedJson.percentage === 'number' ? `${Math.round(parsedJson.percentage)}%` : 'N/A';
-
-                    handwritingFeedbackEl.textContent = `AI Feedback: ${assessmentText} (Score: ${percentage})`;
-                    drawCharacterShadow(selectedChar); // Redraw shadow on reference canvas (which is now permanent)
-                } else {
-                    console.error("Gemini API response structure unexpected:", result);
-                    handwritingFeedbackEl.textContent = 'AI Feedback: Could not assess drawing. Please try again.';
-                }
-            } catch (error) {
-                console.error("Error assessing drawing:", error);
-                handwritingFeedbackEl.textContent = 'AI Feedback: Error during assessment. Please check your connection or try again later.';
-            } finally {
-                hideLoading(null); // Hide global loading indicator
-            }
-        }
-
-        /**
-         * Populates initial static tips and retrieves existing tips.
-         */
-        function initializeGeneralTips() {
-            currentGeneralTips = [];
-            // Collect existing static tips
-            document.querySelectorAll('#generalTipsGrid .static-tip').forEach(tipEl => {
-                currentGeneralTips.push(tipEl.textContent.trim());
-            });
-            console.log("Initialized static tips:", currentGeneralTips);
-        }
-
-        /**
-         * Generates a list of general pronunciation tips using Gemini and displays them.
-         */
+        
         async function generateGeneralTips() {
-            // Add a temporary loading message to the tips grid
             const loadingTip = document.createElement('div');
             loadingTip.classList.add('tip-item');
             loadingTip.textContent = 'Generating more tips...';
             generalTipsGrid.appendChild(loadingTip);
 
-            // Construct prompt, asking for tips different from current ones
-            const prompt = `Generate 5 new, concise, actionable general pronunciation tips for learning Japanese Hiragana/Katakana. Each tip should be 1-2 sentences. Do not mention specific characters. Ensure these tips are different from the following existing tips: [${currentGeneralTips.map(tip => `"${tip}"`).join(', ')}]. Format as a JSON array of strings, e.g., ["Tip 1.", "Tip 2."].`;
-
+            const prompt = `Generate 5 new, concise, actionable general pronunciation tips for learning Japanese Hiragana/Katakana. Each tip should be 1-2 sentences. Do not mention specific characters. Ensure these tips are different from the following existing tips: [${currentGeneralTips.map(tip => `"${tip}"`).join(', ')}]. Format as a JSON array of strings.`;
             try {
-                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "ARRAY",
-                            items: { "type": "STRING" }
+                 const schema = { type: "ARRAY", items: { "type": "STRING" } };
+                 const newTips = await callGeminiAPI(prompt, schema);
+                 if (Array.isArray(newTips) && newTips.length > 0) {
+                    newTips.forEach(tip => {
+                        if (!currentGeneralTips.includes(tip.trim())) {
+                            const tipItem = document.createElement('div');
+                            tipItem.classList.add('tip-item');
+                            tipItem.textContent = tip;
+                            generalTipsGrid.appendChild(tipItem);
+                            currentGeneralTips.push(tip.trim());
                         }
-                    }
-                };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                // Remove the loading message before adding new tips
-                generalTipsGrid.removeChild(loadingTip);
-
-                if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0]) {
-                    const newTips = JSON.parse(result.candidates[0].content.parts[0].text);
-                    if (Array.isArray(newTips) && newTips.length > 0) {
-                        newTips.forEach(tip => {
-                            // Only add if not already present (basic client-side deduplication)
-                            if (!currentGeneralTips.includes(tip.trim())) {
-                                const tipItem = document.createElement('div');
-                                tipItem.classList.add('tip-item');
-                                tipItem.textContent = tip;
-                                generalTipsGrid.appendChild(tipItem);
-                                currentGeneralTips.push(tip.trim()); // Add to tracking list
-                            }
-                        });
-                        console.log("New tips added. All current tips:", currentGeneralTips);
-                    } else {
-                        const noTipsItem = document.createElement('div');
-                        noTipsItem.classList.add('tip-item');
-                        noTipsItem.textContent = 'No new tips generated.';
-                        generalTipsGrid.appendChild(noTipsItem);
-                    }
-                } else {
-                    console.error("AI general tips response unexpected:", result);
-                    const errorTipItem = document.createElement('div');
-                    errorTipItem.classList.add('tip-item');
-                    errorTipItem.textContent = 'Could not generate general tips.';
-                    generalTipsGrid.appendChild(errorTipItem);
+                    });
                 }
             } catch (error) {
                 console.error("Error generating general tips:", error);
                 const errorTipItem = document.createElement('div');
                 errorTipItem.classList.add('tip-item');
-                errorTipItem.textContent = 'Error fetching general tips.';
+                errorTipItem.textContent = 'Error fetching tips.';
                 generalTipsGrid.appendChild(errorTipItem);
+            } finally {
+                generalTipsGrid.removeChild(loadingTip);
             }
         }
 
+        // --- Handwriting Feature ---
+        function showHandwritingCanvas() {
+            if (!selectedChar) return showMessageBox("Please select a character first to practice!", "info");
+            [exampleWordArea, sentenceArea, kanaHistoryArea].forEach(el => el.classList.add('hidden'));
+            handwritingCanvasArea.classList.remove('hidden');
+            drawingCharDisplay.textContent = selectedChar;
+            handwritingFeedbackEl.textContent = 'Draw with left-click, erase with right-click.';
+            if (!ctx) {
+                ctx = handwritingCanvas.getContext('2d');
+                refCtx = referenceCanvas.getContext('2d');
+            }
+            clearHandwritingCanvas();
+            drawCharacterShadow(selectedChar);
+        }
+
+        function startDrawing(event) {
+            isDrawing = true;
+            const rect = handwritingCanvas.getBoundingClientRect();
+            ctx.strokeStyle = (event.button === 2) ? '#f9f9f9' : '#333';
+            ctx.lineWidth = (event.button === 2) ? 10 : 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            [lastX, lastY] = [event.clientX - rect.left, event.clientY - rect.top];
+        }
+
+        function stopDrawing() { isDrawing = false; ctx.beginPath(); }
+        
+        function draw(event) {
+            if (!isDrawing) return;
+            const rect = handwritingCanvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            [lastX, lastY] = [event.clientX - rect.left, event.clientY - rect.top];
+            ctx.lineTo(lastX, lastY);
+            ctx.stroke();
+        }
+
+        function clearHandwritingCanvas() {
+            if(ctx) ctx.clearRect(0, 0, handwritingCanvas.width, handwritingCanvas.height);
+        }
+
+        function drawCharacterShadow(char) {
+            if (!refCtx) return;
+            refCtx.clearRect(0, 0, referenceCanvas.width, referenceCanvas.height);
+            refCtx.save();
+            refCtx.globalAlpha = 0.2;
+            refCtx.fillStyle = '#1877f2';
+            refCtx.font = '100px sans-serif';
+            refCtx.textAlign = 'center';
+            refCtx.textBaseline = 'middle';
+            refCtx.fillText(char, referenceCanvas.width / 2, referenceCanvas.height / 2 + 10);
+            refCtx.restore();
+        }
+        
+        async function assessDrawing() {
+            if (!selectedChar) return showMessageBox("Please select a character first!", "info");
+            handwritingFeedbackEl.textContent = 'Assessing drawing...';
+            showLoading(null);
+            
+            const base64ImageData = handwritingCanvas.toDataURL('image/png').split(',')[1];
+            const prompt = `You are an expert Japanese calligraphy instructor. Analyze the user's drawing of the kana "${selectedChar}". Compare it to the correct form. Provide a detailed, constructive assessment covering these specific points: 1. Stroke order (if discernible, comment on the likely flow), 2. Stroke shape (e.g., are curves correct? are stops/hooks present?), 3. Proportions (balance between different parts of the character), and 4. Overall balance within the square. Give a percentage score from 0 to 100 on accuracy. Format as a valid JSON object: {"assessment": "Your detailed feedback.", "percentage": score}`;
+            
+            try {
+                const payload = {
+                    contents: [ { role: "user", parts: [ { text: prompt }, { inlineData: { mimeType: "image/png", data: base64ImageData } } ] } ],
+                    generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { "assessment": { "type": "STRING" }, "percentage": { "type": "NUMBER" } } } }
+                };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+                if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                    const parsedJson = JSON.parse(result.candidates[0].content.parts[0].text);
+                    const percentage = typeof parsedJson.percentage === 'number' ? `${Math.round(parsedJson.percentage)}%` : 'N/A';
+                    handwritingFeedbackEl.textContent = `AI Feedback (${percentage}):\n${parsedJson.assessment || 'Could not provide assessment.'}`;
+                } else { throw new Error("Invalid API response for assessment"); }
+            } catch (error) {
+                console.error("Error assessing drawing:", error);
+                handwritingFeedbackEl.textContent = 'AI Feedback: Error during assessment. Please try again.';
+            } finally {
+                hideLoading(null);
+            }
+        }
 
         // --- Initial Load ---
-        // Ensure DOM is fully loaded before initializing the grids and voice support
         document.addEventListener('DOMContentLoaded', () => {
-            // Create and populate all Kana grids
             createGrid(hiraganaGrid, hiraganaBasic, basicHeaders, basicRows);
             createGrid(katakanaGrid, katakanaBasic, basicHeaders, basicRows);
             createGrid(hiraganaDakutenGrid, hiraganaDakuten, basicHeaders, dakutenRows);
             createGrid(katakanaDakutenGrid, katakanaDakuten, basicHeaders, dakutenRows);
             
-            // Check and set up voice synthesis
             checkVoiceSupport();
-            // Initialize the list of general tips
-            initializeGeneralTips();
+            
+            document.querySelectorAll('.static-tip').forEach(tipEl => currentGeneralTips.push(tipEl.textContent.trim()));
 
-            // Attach event listeners for LLM features, animation, and handwriting
+            btnBasic.onclick = () => switchView(true);
+            btnDakuten.onclick = () => switchView(false);
+            audioBtn.onclick = () => playAudio(selectedChar);
             generateWordBtn.onclick = generateExampleWord;
             generateSentenceBtn.onclick = generateSentence;
             generateKanaHistoryBtn.onclick = generateKanaHistory;
+            generateGeneralTipsBtn.onclick = generateGeneralTips;
             showHandwritingCanvasBtn.onclick = showHandwritingCanvas;
-            clearCanvasBtn.onclick = clearHandwritingCanvas; // Attach clear button handler
-            clearFeedbackBtn.onclick = clearAssessmentFeedback; // Attach clear feedback button handler
-            assessDrawingBtn.onclick = assessDrawing; // Attach assess drawing button handler
-            generateGeneralTipsBtn.onclick = generateGeneralTips; // Attach general tips button handler
+            clearCanvasBtn.onclick = clearHandwritingCanvas;
+            assessDrawingBtn.onclick = assessDrawing;
 
+            handwritingCanvas.addEventListener('mousedown', startDrawing);
+            handwritingCanvas.addEventListener('mouseup', stopDrawing);
+            handwritingCanvas.addEventListener('mouseout', stopDrawing);
+            handwritingCanvas.addEventListener('mousemove', draw);
+            handwritingCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+            handwritingCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e.touches[0]); });
+            handwritingCanvas.addEventListener('touchend', (e) => { e.preventDefault(); stopDrawing(); });
+            handwritingCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
         });
     </script>
 </body>
