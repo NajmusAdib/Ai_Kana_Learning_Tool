@@ -56,13 +56,13 @@ This project uses [Google Gemini](https://ai.google) for:
 ## ✍️ Handwriting Practice
 
 - Draw the selected Kana character
-- Get real-time AI feedback on accuracy (experimental)
+- Get real-time AI feedback on accuracy
 - Works with mouse and touchscreen
 
 ## 🗣️ Voice Support
 
 Speech is generated using your browser’s built-in Japanese voice. Make sure:
-- You're using a browser with Japanese voice support (Chrome recommended)
+- You're using a browser with Japanese voice support
 - The voice is selected automatically on load
 
 ## 📦 Exporting/Embedding
@@ -76,6 +76,7 @@ You can embed this chart in any educational site by:
 MIT License – Free to use, modify, and share.
 
 ## 🙏 Credits
+1. Md. Najmos Salahin
 
 Created with ❤️ for learners of Japanese. Powered by:
 - HTML5, CSS3, JavaScript
